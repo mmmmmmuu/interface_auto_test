@@ -10,7 +10,7 @@ from p5common.baseMethod import baseMethod
 
 class BaseRunner(baseMethod):
 
-    def __init__(self, batch_no, info=None, id=None, alias=None, parent_id=None, type=BATCH_INTERFACE, params=None, tranname=""):
+    def __init__(self, batch_no, info=None, id=None, alias=None, mapping_id=None, parent_task_id=None, type=BATCH_INTERFACE, params=None, tranname=""):
         self._batch_no = batch_no
         self._info = info
         self._id = id
@@ -21,7 +21,8 @@ class BaseRunner(baseMethod):
         self._status = 1
         self._task_name = ""
         self._loc = ""
-        self._parent_id = parent_id
+        self._mapping_id = mapping_id
+        self._parent_task_id = parent_task_id
         self._type = type
         self._task_id = None
         self._task = None
@@ -29,14 +30,14 @@ class BaseRunner(baseMethod):
 
     def _skipcheck(self):
         self._cutil = common_utils(self)
-        return self._cutil.runPlugins(type=self._type, method="_skipcheck", check_type=2)
+        return self._cutil.runPlugins(type=self._type, method="_skipcheck", check_type=2, instance=self)
 
     def _exitcheck(self):
-        return self._cutil.runPlugins(type=self._type, method="_exitcheck", check_type=2)
+        return self._cutil.runPlugins(type=self._type, method="_exitcheck", check_type=2, instance=self)
 
     # 替换变量
     def _dealParams(self):
-        self._cutil.runPlugins(type=self._type, method="_dealParams", check_type=1)
+        self._cutil.runPlugins(type=self._type, method="_dealParams", check_type=1, instance=self)
 
 
     # 保存变量
@@ -46,26 +47,26 @@ class BaseRunner(baseMethod):
 
     # 执行前做 如打印执行日志
     def _dobefore(self):
-        self._cutil.runPlugins(type=self._type, method="_dobefore", check_type=1)
+        self._cutil.runPlugins(type=self._type, method="_dobefore", check_type=1, instance=self)
 
 
     # 执行自定义动作
     def _preaction(self):
-        self._cutil.runPlugins(type=self._type, method="_preaction", check_type=1)
+        self._cutil.runPlugins(type=self._type, method="_preaction", check_type=1, instance=self)
 
 
     # 执行
     def _run(self):
-        self._cutil.runPlugins(type=self._type, method="_run", check_type=1)
+        self._cutil.runPlugins(type=self._type, method="_run", check_type=1, instance=self)
 
 
     # 返回结果检查
     def _response_check(self):
-        return self._cutil.runPlugins(type=self._type, method="_response_check", check_type=2)
+        return self._cutil.runPlugins(type=self._type, method="_response_check", check_type=2, instance=self)
 
     # 处理返回
     def _dealResponse(self):
-        self._cutil.runPlugins(type=self._type, method="_dealResponse", check_type=1)
+        self._cutil.runPlugins(type=self._type, method="_dealResponse", check_type=1, instance=self)
 
 
     # 讲执行结果保存到内存供后续引用
@@ -77,17 +78,11 @@ class BaseRunner(baseMethod):
 
     # 执行自定义后置动作
     def _ateraction(self):
-        self._cutil.runPlugins(type=self._type, method="_ateraction", check_type=1)
-
-
-    # 执行后操作 如打印日志
-    def _doafter(self):
-        self._cutil.runPlugins(type=self._type, method="_doafter", check_type=1)
-
+        self._cutil.runPlugins(type=self._type, method="_ateraction", check_type=1, instance=self)
 
     # 执行后操作 如打印日志
     def _doafter(self):
-        self._cutil.runPlugins(type=self._type, method="_doafter", check_type=1)
+        self._cutil.runPlugins(type=self._type, method="_doafter", check_type=1, instance=self)
         # self._task.updateTaskStatus(self._status)
         logging.info(self._tranname + "接口返回结果为：" + str(self._response))
 

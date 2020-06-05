@@ -13,7 +13,7 @@ class common_utils:
         self._plugins = TempVariable.cage[instance._batch_no]["plugins"]
         for plugin in self._plugins:
             util = importlib.import_module("p7plugins." + plugin["execute_class"])
-            self._cage[plugin["execute_class"]] = getattr(util, plugin["execute_class"])(instance)
+            self._cage[plugin["execute_class"]] = getattr(util, plugin["execute_class"])(instance=instance)
 
 
     # 执行插件方法

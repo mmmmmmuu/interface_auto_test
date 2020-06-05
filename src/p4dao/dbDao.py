@@ -25,7 +25,7 @@ def getInterByGroup(id=None, alias=None):
         condtions.append(" ig.alias=%s ")
         params.append(alias)
     dbopr = Dboperator().getInstance(db_config=test_db)
-    return dbopr.getAll('''select ig.alias group_alias, ibi.* from interface_group_info ig
+    return dbopr.getAll('''select gim.id parent_id, ibi.* from interface_group_info ig
                         inner join group_interface_mapping gim on ig.id=gim.group_id
                         inner join interface_info ibi on gim.interface_id=ibi.id
                         where %s order by `order` ''' % " and ".join(condtions), params)
@@ -69,13 +69,8 @@ def getAllInterfaceInfos():
 
 def getTaskInfo(type, id):
     dbopr = Dboperator().getInstance(db_config=test_db)
-    if type == BATCH_BATCH:
-        table = "batch_info"
-    elif type == BATCH_GROUP:
-        table = "interface_group_info"
-    elif type == BATCH_INTERFACE:
-        table = "interface_info"
-    return dbopr.getOne("select * from " + table + " where id=%s;", id)
+    return dbopr.getOne("select * from " + {BATCH_BATCH: "batch_info", BATCH_GROUP: "interface_group_info", BATCH_INTERFACE: "interface_info"}[type]
+                        + " where id=%s;", id)
 
 def get_user_batch_env(user_id, batch_id):
     dbopr = Dboperator().getInstance(db_config=test_db)

@@ -17,13 +17,13 @@ def checkparam(method):
     pass
 
 
-def iter_replace(info, args):
-    for key, value in args.items():
-        if key in info.keys():
-            if isinstance(value, dict) and info[key]:
-                iter_replace(info[key], value)
-            else:
-                info[key] = copy(value)
+# def iter_replace(info, args):
+#     for key, value in args.items():
+#         if key in info.keys():
+#             if isinstance(value, dict) and info[key]:
+#                 iter_replace(info[key], value)
+#             else:
+#                 info[key] = copy(value)
 
 # def paramNotNone(func):
 #     '''参数非空check装饰器1111111'''

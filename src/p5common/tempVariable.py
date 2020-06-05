@@ -4,7 +4,7 @@ from copy import copy
 
 
 class TempVariable:
-    cage = {"scene": {}}
+    cage = {}
 
     @classmethod
     def addToBatch(cls, value, batch_no=None):

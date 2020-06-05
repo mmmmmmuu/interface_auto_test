@@ -16,9 +16,9 @@ from p5common.utils import iter_replace, replace
 
 class CommonInterface(BaseRunner):
 
-    def __init__(self, batch_no, interface_info=None, interface_id=None, alias=None, parent_id=None, params=None, tranname="", loc=""):
-        BaseRunner.__init__(self, batch_no=batch_no, info=interface_info, id=interface_id, alias=alias, parent_id=parent_id, type=BATCH_INTERFACE,
-                            params=params, tranname=tranname)
+    def __init__(self, batch_no, interface_info=None, interface_id=None, alias=None, mapping_id=None, parent_task_id=None, params=None, tranname="", loc=""):
+        BaseRunner.__init__(self, batch_no=batch_no, info=interface_info, id=interface_id, alias=alias, mapping_id=mapping_id,
+                            parent_task_id=parent_task_id, type=BATCH_INTERFACE, params=params, tranname=tranname)
         if not self._info:
             self._info = getInterfaceInfo(id=self._id, alias=self._alias)
         if not self._alias:
@@ -109,5 +109,5 @@ if __name__ == '__main__':
     batch_no = "111111111"
     TempVariable.addToBatch(get_user_batch_env(1, 1), batch_no)
     print(TempVariable.getValue("sda_url"))
-    CommonInterface(batch_no=batch_no, interface_id=1, parent_id=0, loc=batch_no).execute()
+    CommonInterface(batch_no=batch_no, interface_id=1, parent_task_id=0, loc=batch_no).execute()
 
