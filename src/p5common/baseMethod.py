@@ -1,4 +1,4 @@
-
+from p0constants.task_constants import *
 from p5common.common import common_utils
 
 class baseMethod:
@@ -27,7 +27,7 @@ class baseMethod:
 
     # 执行
     def _run(self, **kwargs):
-        pass
+        return True, ""
 
     # 返回结果检查
     def _response_check(self, **kwargs):

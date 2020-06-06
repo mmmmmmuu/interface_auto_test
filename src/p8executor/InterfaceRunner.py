@@ -1,8 +1,10 @@
 import datetime
+import traceback
 from json import JSONDecodeError
 
 import requests
 
+from p0constants.task_constants import *
 from p2myconfig.config import HEADERS, product_db
 from p4dao.dbDao import getInterfaceInfo, initBusinessDate, BATCH_INTERFACE, get_user_batch_env
 from p3db.Dboperator import Dboperator
@@ -63,18 +65,26 @@ class CommonInterface(BaseRunner):
         :param tranName: 日志前置
         :return: 接口请求结果
         '''
-        super()._run()
-        rev = requests.post(url=self._url, data=json.dumps(self._params), headers=HEADERS)
+        try:
+            super()._run()
+            rev = requests.post(url=self._url, data=json.dumps(self._params), headers=HEADERS)
+        except Exception as e:
+            traceback.print_exc()
+            self._status = TASK_ERROR
+            return RUNNING_ERROR, e
+        self._status = TASK_SUCCESS
         self._response = rev
+        return RUNNING_SUCCESS, self._response
 
     def _response_check(self):
         status, msg = super()._response_check()
-        if not status:
+        if status != RUNNING_SUCCESS:
             return status, msg
         if self._response.status_code != 200:
-            return False, self._task_name + "接口返回状态为" + str(self._response.status_code) + ", 状态检查失败!"
+            self._status = TASK_FAIL
+            return RUNNING_FAIL, self._task_name + "接口返回状态为" + str(self._response.status_code) + ", 状态检查失败!"
         self._response = self._response.content.decode("utf8")
-        return True, ""
+        return RUNNING_SUCCESS, ""
 
     def _dealResponse(self):
         super()._dealResponse()

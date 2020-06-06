@@ -30,10 +30,16 @@ class BaseRunner(baseMethod):
 
     def _skipcheck(self):
         self._cutil = common_utils(self)
-        return self._cutil.runPlugins(type=self._type, method="_skipcheck", check_type=2, instance=self)
+        status, msg = self._cutil.runPlugins(type=self._type, method="_skipcheck", check_type=2, instance=self)
+        if not status:
+            return RUNNING_FAIL, msg
+        return RUNNING_SUCCESS, ""
 
     def _exitcheck(self):
-        return self._cutil.runPlugins(type=self._type, method="_exitcheck", check_type=2, instance=self)
+        status, msg = self._cutil.runPlugins(type=self._type, method="_exitcheck", check_type=2, instance=self)
+        if not status:
+            return RUNNING_FAIL, msg
+        return RUNNING_SUCCESS, ""
 
     # 替换变量
     def _dealParams(self):
@@ -57,12 +63,15 @@ class BaseRunner(baseMethod):
 
     # 执行
     def _run(self):
-        self._cutil.runPlugins(type=self._type, method="_run", check_type=1, instance=self)
+        return self._cutil.runPlugins(type=self._type, method="_run", check_type=1, instance=self)
 
 
     # 返回结果检查
     def _response_check(self):
-        return self._cutil.runPlugins(type=self._type, method="_response_check", check_type=2, instance=self)
+        status, msg = self._cutil.runPlugins(type=self._type, method="_response_check", check_type=2, instance=self)
+        if not status:
+            return RUNNING_FAIL, msg
+        return RUNNING_SUCCESS, ""
 
     # 处理返回
     def _dealResponse(self):
@@ -90,27 +99,33 @@ class BaseRunner(baseMethod):
     # 流程定义，主要执行方法
     def execute(self):
         status, msg = self._skipcheck()
-        if not status:
+        if status != RUNNING_SUCCESS:
             return RUNNING_SKIP, msg
         status, msg = self._exitcheck()
-        if not status:
+        if status != RUNNING_SUCCESS:
+            self._status = TASK_FAIL
+            self._doafter()
             return RUNNING_EXIT, msg
         self._preaction()
         self._dealParams()
         self._dobefore()
         self._saveParams()
         try:
-            self._run()
+            status, response = self._run()
+            if status != RUNNING_SUCCESS:
+                self._status = TASK_FAIL
+                self._doafter()
+                return status, response
         except Exception as e:
             traceback.print_exc()
-            self._status = TASK_FAIL, traceback.print_exc()
+            self._status = TASK_ERROR
             self._doafter()
-            raise e
+            return RUNNING_ERROR, e
         status, msg = self._response_check()
-        if not status:
+        if status != RUNNING_SUCCESS:
             self._status = TASK_FAIL
             self._doafter()
-            return RUNNING_ERROR, msg
+            return status, msg
         self._status = TASK_SUCCESS
         self._dealResponse()
         self._saveResponse()

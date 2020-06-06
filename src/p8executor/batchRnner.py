@@ -47,11 +47,11 @@ class Batch(BaseRunner):
             if response and isinstance(response, dict):
                 self._response.update(response)
                 TempVariable.saveResponse(value=self._response, loc=self._loc)
-            if status == RUNNING_EXIT:
-                self._status = 2
-                return ""
+            if status in (RUNNING_EXIT, RUNNING_ERROR, RUNNING_FAIL):
+                self._status = {RUNNING_EXIT: TASK_FAIL, RUNNING_ERROR: TASK_ERROR, RUNNING_FAIL: TASK_FAIL}[status]
+                return status, response
             # self._params.update(self._response)
-        return self._response
+        return RUNNING_SUCCESS, self._response
 
 
     def _doafter(self):

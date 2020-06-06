@@ -1,7 +1,7 @@
 import json
 from copy import copy
 
-from p0constants.task_constants import RUNNING_EXIT
+from p0constants.task_constants import *
 from p4dao.dbDao import getInterByGroup, getInterfaceInfo, getInterfaceGroupInfo, BATCH_GROUP
 from p5common.common import common_utils
 from p8executor.InterfaceRunner import CommonInterface
@@ -50,7 +50,8 @@ class InterfaceGroup(BaseRunner):
                 self._response.update(response)
                 TempVariable.saveResponse(value=self._response, loc=self._loc)
             # iter_replace(self._params, self._response)
-            if status == RUNNING_EXIT:
-                self._status = 2
-                return ""
-        return self._response
+            if status in (RUNNING_EXIT, RUNNING_ERROR, RUNNING_FAIL):
+                self._status = {RUNNING_EXIT: TASK_FAIL, RUNNING_ERROR: TASK_ERROR, RUNNING_FAIL: TASK_FAIL}[status]
+                return status, response
+        return RUNNING_SUCCESS, self._response
+
